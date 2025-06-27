@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loop Mirror - Emotional Intelligence for Music</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 0;
+        }
+
+        .logo {
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            color: #9ca3af;
+            margin-bottom: 5px;
+        }
+
+        .powered-by {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .upload-section {
+            background: rgba(55, 65, 81, 0.5);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            border: 2px dashed transparent;
+            transition: all 0.3s ease;
+        }
+
+        .upload-section.dragover {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #3b82f6;
+        }
+
+        .upload-button {
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .upload-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .upload-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .analyzing {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(59, 130, 246, 0.3);
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results-section {
+            display: none;
+        }
+
+        .results-section.show {
+            display: block;
+        }
+
+        .timeline-container {
+            background: rgba(55, 65, 81, 0.5);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .timeline-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .timeline-duration {
+            font-size: 0.9rem;
+            color: #9ca3af;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+        }
+
+        .timeline {
+            display: flex;
+            gap: 4px;
+            padding: 20px 0;
+            overflow-x: auto;
+            min-height: 100px;
+        }
+
+        .emotion-segment {
+            min-width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            display: flex;
+            align-items: end;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            border: 2px solid transparent;
+        }
+
+        .emotion-segment:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .emotion-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+
+        .feedback-section {
+            background: rgba(55, 65, 81, 0.5);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .feedback-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .demo-badge {
+            background: rgba(251, 146, 60, 0.2);
+            color: #fb923c;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .feedback-content {
+            background: rgba(17, 24, 39, 0.8);
+            border-radius: 12px;
+            padding: 20px;
+            line-height: 1.7;
+        }
+
+        .reset-button {
+            background: rgba(107, 114, 128, 0.5);
+            border: 1px solid #4b5563;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .reset-button:hover {
+            background: rgba(107, 114, 128, 0.7);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #1f2937;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .emotion-details {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .emotion-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .emotion-info h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+
+        .emotion-info p {
+            color: #9ca3af;
+        }
+
+        .timing-details {
+            background: rgba(55, 65, 81, 0.5);
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .timing-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .timing-row:last-child {
+            margin-bottom: 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .logo {
+                font-size: 2rem;
+            }
+            
+            .upload-section {
+                padding: 30px 20px;
+            }
+            
+            .timeline {
+                flex-wrap: wrap;
+            }
+            
+            .emotion-segment {
+                min-width: 70px;
+                height: 70px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">Loop Mirror</div>
+            <div class="tagline">Honest Emotional Feedback</div>
+            <div class="powered-by">Powered by M87 Studio</div>
+        </div>
+
+        <!-- Upload Section -->
+        <div class="upload-section" id="uploadSection">
+            <div class="upload-icon">🎵</div>
+            <h2>Upload Your Loop</h2>
+            <p style="margin: 15px 0; color: #9ca3af;">Get visual emotional feedback in seconds</p>
+            <button class="upload-button" id="uploadButton">
+                <span>📁</span>
+                Choose Audio File
+            </button>
+            <input type="file" class="file-input" id="fileInput" accept="audio/*">
+            <p style="margin-top: 15px; font-size: 0.9rem; color: #6b7280;">
+                Supports MP3, WAV, M4A, FLAC
+            </p>
+        </div>
+
+        <!-- Analyzing State -->
+        <div class="analyzing" id="analyzingSection" style="display: none;">
+            <div class="spinner"></div>
+            <h3>Analyzing emotional content...</h3>
+            <p style="color: #9ca3af; margin-top: 10px;">This may take a few seconds</p>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section" id="resultsSection">
+            <!-- Timeline -->
+            <div class="timeline-container">
+                <div class="timeline-header">
+                    <div class="timeline-title">Emotional Journey</div>
+                    <div class="timeline-duration" id="timelineDuration">0:00 / 3:00</div>
+                </div>
+                <div class="timeline" id="timeline"></div>
+            </div>
+
+            <!-- AI Feedback -->
+            <div class="feedback-section">
+                <div class="feedback-header">
+                    <div class="feedback-title">AI Feedback</div>
+                    <div class="demo-badge">Demo Mode</div>
+                </div>
+                <div class="feedback-content" id="feedbackContent">
+                    Your feedback will appear here...
+                </div>
+            </div>
+
+            <!-- Reset Button -->
+            <div style="text-align: center;">
+                <button class="reset-button" id="resetButton">Try Another Loop</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Emotion Details -->
+    <div class="modal" id="emotionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Emotion Details</h2>
+                <button class="close-button" id="closeModal">&times;</button>
+            </div>
+            <div id="modalBody">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Emotion color mapping
+        const EMOTION_COLORS = {
+            'Joy': '#fbbf24',
+            'Sadness': '#3b82f6',
+            'Anger': '#ef4444',
+            'Fear': '#8b5cf6',
+            'Surprise': '#f97316',
+            'Disgust': '#10b981',
+            'Contemplation': '#6366f1',
+            'Melancholy': '#6b7280',
+            'Building': '#f59e0b',
+            'Release': '#ec4899',
+            'Tension': '#dc2626',
+            'Calm': '#22d3ee'
+        };
+
+        // Mock emotional analysis engine
+        function generateMockAnalysis(fileName) {
+            const emotions = Object.keys(EMOTION_COLORS);
+            const duration = 180; // 3 minutes
+            const segmentCount = 4 + Math.floor(Math.random() * 3); // 4-6 segments
+            const segmentDuration = duration / segmentCount;
+            
+            const segments = [];
+            
+            // Generate emotion based on filename hints
+            let primaryEmotion = emotions[Math.floor(Math.random() * emotions.length)];
+            if (fileName.toLowerCase().includes('sad')) primaryEmotion = 'Sadness';
+            if (fileName.toLowerCase().includes('happy')) primaryEmotion = 'Joy';
+            if (fileName.toLowerCase().includes('angry')) primaryEmotion = 'Anger';
+            if (fileName.toLowerCase().includes('calm')) primaryEmotion = 'Calm';
+            
+            for (let i = 0; i < segmentCount; i++) {
+                const startTime = i * segmentDuration;
+                const endTime = Math.min((i + 1) * segmentDuration, duration);
+                
+                let emotion = primaryEmotion;
+                if (i > 0) {
+                    // Add variation for subsequent segments
+                    const relatedEmotions = {
+                        'Joy': ['Building', 'Release', 'Joy'],
+                        'Sadness': ['Melancholy', 'Contemplation', 'Calm'],
+                        'Anger': ['Tension', 'Building', 'Release'],
+                        'Calm': ['Contemplation', 'Melancholy', 'Joy']
+                    };
+                    const options = relatedEmotions[primaryEmotion] || emotions;
+                    emotion = options[Math.floor(Math.random() * options.length)];
+                }
+                
+                segments.push({
+                    id: `segment-${i}`,
+                    emotion: emotion,
+                    startTime: startTime,
+                    endTime: endTime,
+                    intensity: 0.4 + Math.random() * 0.5, // 40-90% intensity
+                    duration: endTime - startTime
+                });
+            }
+            
+            return {
+                segments: segments,
+                dominantEmotion: primaryEmotion,
+                overallIntensity: 0.5 + Math.random() * 0.4,
+                fileName: fileName
+            };
+        }
+
+        function generateMockFeedback(analysis) {
+            const templates = [
+                `This loop establishes ${analysis.dominantEmotion.toLowerCase()} as its emotional foundation. The progression shows interesting dynamic development with ${analysis.segments.length} distinct emotional phases. The overall intensity (${Math.round(analysis.overallIntensity * 100)}%) suggests ${analysis.overallIntensity > 0.7 ? 'high energy engagement' : 'contemplative emotional space'}.`,
+                
+                `I'm hearing a ${analysis.dominantEmotion.toLowerCase()} core with ${analysis.segments.length === 4 ? 'clear' : 'complex'} emotional structure. This creates ${analysis.overallIntensity > 0.6 ? 'engaging' : 'introspective'} listening territory. The emotional arc shows ${analysis.segments.length > 5 ? 'sophisticated' : 'focused'} development.`,
+                
+                `Your loop demonstrates ${analysis.dominantEmotion.toLowerCase()} effectively. The ${analysis.segments.length}-segment structure indicates ${analysis.segments.length > 4 ? 'nuanced' : 'direct'} emotional storytelling. Overall intensity at ${Math.round(analysis.overallIntensity * 100)}% creates ${analysis.overallIntensity > 0.6 ? 'dynamic' : 'subtle'} emotional impact.`
+            ];
+            
+            const suggestions = [
+                "Consider adding dynamic contrast in transitional moments",
+                "Experiment with harmonic modulation for emotional depth", 
+                "Try varying rhythmic density to enhance the emotional arc",
+                "Build more tension into the middle section",
+                "Explore counter-melodies to add complexity",
+                "Consider subtle tempo variations for organic feel"
+            ];
+            
+            const template = templates[Math.floor(Math.random() * templates.length)];
+            const selectedSuggestions = suggestions.sort(() => 0.5 - Math.random()).slice(0, 2);
+            
+            return template + '\n\nSuggestions:\n• ' + selectedSuggestions.join('\n• ');
+        }
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${minutes}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function createTimelineSegment(segment, totalDuration) {
+            const proportion = segment.duration / totalDuration;
+            const minWidth = 80;
+            const maxWidth = 200;
+            const width = Math.max(minWidth, proportion * 800);
+            
+            const segmentEl = document.createElement('div');
+            segmentEl.className = 'emotion-segment';
+            segmentEl.style.width = `${width}px`;
+            segmentEl.style.background = `linear-gradient(to top, ${EMOTION_COLORS[segment.emotion]}${Math.round(segment.intensity * 100).toString(16).padStart(2, '0')}, ${EMOTION_COLORS[segment.emotion]})`;
+            segmentEl.style.borderColor = EMOTION_COLORS[segment.emotion];
+            
+            const label = document.createElement('div');
+            label.className = 'emotion-label';
+            label.textContent = segment.emotion;
+            segmentEl.appendChild(label);
+            
+            segmentEl.addEventListener('click', () => showEmotionDetails(segment));
+            
+            return segmentEl;
+        }
+
+        function showEmotionDetails(segment) {
+            const modal = document.getElementById('emotionModal');
+            const modalBody = document.getElementById('modalBody');
+            
+            modalBody.innerHTML = `
+                <div class="emotion-details">
+                    <div class="emotion-circle" style="background-color: ${EMOTION_COLORS[segment.emotion]};">
+                        ${getEmotionEmoji(segment.emotion)}
+                    </div>
+                    <div class="emotion-info">
+                        <h3>${segment.emotion}</h3>
+                        <p>Intensity: ${Math.round(segment.intensity * 100)}%</p>
+                    </div>
+                </div>
+                
+                <div class="timing-details">
+                    <h4 style="margin-bottom: 15px;">Timing</h4>
+                    <div class="timing-row">
+                        <span>Start:</span>
+                        <span>${formatTime(segment.startTime)}</span>
+                    </div>
+                    <div class="timing-row">
+                        <span>End:</span>
+                        <span>${formatTime(segment.endTime)}</span>
+                    </div>
+                    <div class="timing-row">
+                        <span>Duration:</span>
+                        <span>${formatTime(segment.duration)}</span>
+                    </div>
+                </div>
+            `;
+            
+            modal.style.display = 'block';
+        }
+
+        function getEmotionEmoji(emotion) {
+            const emojis = {
+                'Joy': '😊',
+                'Sadness': '😢',
+                'Anger': '😠',
+                'Fear': '😰',
+                'Surprise': '😲',
+                'Disgust': '🤢',
+                'Contemplation': '🤔',
+                'Melancholy': '😔',
+                'Building': '📈',
+                'Release': '💥',
+                'Tension': '😬',
+                'Calm': '😌'
+            };
+            return emojis[emotion] || '🎵';
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadButton = document.getElementById('uploadButton');
+            const fileInput = document.getElementById('fileInput');
+            const uploadSection = document.getElementById('uploadSection');
+            const analyzingSection = document.getElementById('analyzingSection');
+            const resultsSection = document.getElementById('resultsSection');
+            const resetButton = document.getElementById('resetButton');
+            const modal = document.getElementById('emotionModal');
+            const closeModal = document.getElementById('closeModal');
+
+            // File upload handling
+            uploadButton.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    processAudioFile(file);
+                }
+            });
+
+            // Drag and drop handling
+            uploadSection.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadSection.classList.add('dragover');
+            });
+
+            uploadSection.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                uploadSection.classList.remove('dragover');
+            });
+
+            uploadSection.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadSection.classList.remove('dragover');
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('audio/')) {
+                    processAudioFile(file);
+                }
+            });
+
+            // Reset functionality
+            resetButton.addEventListener('click', function() {
+                uploadSection.style.display = 'block';
+                analyzingSection.style.display = 'none';
+                resultsSection.classList.remove('show');
+                fileInput.value = '';
+            });
+
+            // Modal handling
+            closeModal.addEventListener('click', function() {
+                modal.style.display = 'none';
+            });
+
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+
+            function processAudioFile(file) {
+                // Show analyzing state
+                uploadSection.style.display = 'none';
+                analyzingSection.style.display = 'block';
+
+                // Simulate processing time
+                setTimeout(() => {
+                    const analysis = generateMockAnalysis(file.name);
+                    const feedback = generateMockFeedback(analysis);
+                    
+                    displayResults(analysis, feedback);
+                }, 2000 + Math.random() * 2000); // 2-4 seconds
+            }
+
+            function displayResults(analysis, feedback) {
+                // Hide analyzing state
+                analyzingSection.style.display = 'none';
+                
+                // Create timeline
+                const timeline = document.getElementById('timeline');
+                timeline.innerHTML = '';
+                
+                analysis.segments.forEach(segment => {
+                    const segmentEl = createTimelineSegment(segment, 180);
+                    timeline.appendChild(segmentEl);
+                });
+                
+                // Update feedback
+                document.getElementById('feedbackContent').textContent = feedback;
+                
+                // Show results
+                resultsSection.classList.add('show');
+            }
+        });
+    </script>
+</body>
+</html>
