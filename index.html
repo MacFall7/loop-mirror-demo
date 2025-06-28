@@ -101,7 +101,7 @@
       display: none;
     }
 
-    /* 🔁 iOS-specific improvements (injected fix) */
+    /* iOS-specific improvements */
     @media screen and (-webkit-min-device-pixel-ratio: 2) {
       .upload-button {
         -webkit-tap-highlight-color: transparent;
@@ -168,11 +168,13 @@
         Choose Audio File
       </button>
 
-      <!-- ✅ UPDATED INPUT TAG -->
+      <!-- ✅ iOS-compatible input with restored uploadStatus element -->
       <input type="file" 
              class="file-input" 
              id="fileInput" 
              accept="audio/mp3,audio/wav,audio/m4a,audio/aac,audio/flac,audio/ogg,audio/*,.mp3,.wav,.m4a,.aac,.flac,.ogg">
+
+      <p id="uploadStatus" style="margin-top: 10px; color: #ffffff;"></p>
 
       <p style="margin-top: 15px; font-size: 0.9rem; color: #6b7280;">
         Supports MP3, WAV, M4A, FLAC
@@ -247,18 +249,10 @@
 
   function getEmotionEmoji(emotion) {
     const emojis = {
-      'Joy': '😊',
-      'Sadness': '😢',
-      'Anger': '😠',
-      'Fear': '😰',
-      'Surprise': '😲',
-      'Disgust': '🤢',
-      'Contemplation': '🤔',
-      'Melancholy': '😔',
-      'Building': '📈',
-      'Release': '💥',
-      'Tension': '😬',
-      'Calm': '😌'
+      'Joy': '😊', 'Sadness': '😢', 'Anger': '😠', 'Fear': '😰',
+      'Surprise': '😲', 'Disgust': '🤢', 'Contemplation': '🤔',
+      'Melancholy': '😔', 'Building': '📈', 'Release': '💥',
+      'Tension': '😬', 'Calm': '😌'
     };
     return emojis[emotion] || '🎵';
   }
@@ -268,15 +262,14 @@
     const duration = 180;
     const segmentCount = 4 + Math.floor(Math.random() * 3);
     const segmentDuration = duration / segmentCount;
-
     let primaryEmotion = emotions[Math.floor(Math.random() * emotions.length)];
+
     if (fileName.toLowerCase().includes('sad')) primaryEmotion = 'Sadness';
     if (fileName.toLowerCase().includes('happy')) primaryEmotion = 'Joy';
     if (fileName.toLowerCase().includes('angry')) primaryEmotion = 'Anger';
     if (fileName.toLowerCase().includes('calm')) primaryEmotion = 'Calm';
 
     const segments = [];
-
     for (let i = 0; i < segmentCount; i++) {
       const startTime = i * segmentDuration;
       const endTime = Math.min((i + 1) * segmentDuration, duration);
@@ -288,12 +281,8 @@
       };
       const options = related[primaryEmotion] || emotions;
       const emotion = i === 0 ? primaryEmotion : options[Math.floor(Math.random() * options.length)];
-
       segments.push({
-        id: `segment-${i}`,
-        emotion,
-        startTime,
-        endTime,
+        id: `segment-${i}`, emotion, startTime, endTime,
         intensity: 0.4 + Math.random() * 0.5,
         duration: endTime - startTime
       });
@@ -309,17 +298,14 @@
 
   function generateMockFeedback(analysis) {
     const templates = [
-      `This loop establishes ${analysis.dominantEmotion.toLowerCase()} as its emotional foundation. The progression shows interesting dynamic development with ${analysis.segments.length} distinct emotional phases. The overall intensity (${Math.round(analysis.overallIntensity * 100)}%) suggests ${analysis.overallIntensity > 0.7 ? 'high energy engagement' : 'contemplative emotional space'}.`,
-      `I'm hearing a ${analysis.dominantEmotion.toLowerCase()} core with ${analysis.segments.length === 4 ? 'clear' : 'complex'} emotional structure. This creates ${analysis.overallIntensity > 0.6 ? 'engaging' : 'introspective'} listening territory.`,
-      `Your loop demonstrates ${analysis.dominantEmotion.toLowerCase()} effectively. The ${analysis.segments.length}-segment structure indicates ${analysis.segments.length > 4 ? 'nuanced' : 'direct'} emotional storytelling.`
+      `This loop establishes ${analysis.dominantEmotion.toLowerCase()} as its emotional foundation...`,
+      `I'm hearing a ${analysis.dominantEmotion.toLowerCase()} core with ${analysis.segments.length === 4 ? 'clear' : 'complex'} structure...`,
+      `Your loop demonstrates ${analysis.dominantEmotion.toLowerCase()} effectively...`
     ];
     const suggestions = [
-      "Consider adding dynamic contrast in transitional moments",
-      "Experiment with harmonic modulation for emotional depth",
-      "Try varying rhythmic density to enhance the emotional arc",
-      "Build more tension into the middle section",
-      "Explore counter-melodies to add complexity",
-      "Consider subtle tempo variations for organic feel"
+      "Consider adding dynamic contrast", "Try harmonic modulation",
+      "Explore rhythmic density", "Build more tension",
+      "Use counter-melodies", "Add subtle tempo variation"
     ];
     const template = templates[Math.floor(Math.random() * templates.length)];
     const selected = suggestions.sort(() => 0.5 - Math.random()).slice(0, 2);
@@ -344,7 +330,6 @@
     label.className = 'emotion-label';
     label.textContent = segment.emotion;
     el.appendChild(label);
-
     el.addEventListener('click', () => showEmotionDetails(segment));
     return el;
   }
@@ -445,6 +430,8 @@
       analyzingSection.style.display = 'none';
       resultsSection.classList.remove('show');
       fileInput.value = '';
+      uploadStatus.textContent = '';
+      fileNameDisplay.textContent = '';
     });
 
     closeModal.addEventListener('click', () => modal.style.display = 'none');
@@ -465,7 +452,6 @@
 
     function displayResults(analysis, feedback) {
       analyzingSection.style.display = 'none';
-
       const timeline = document.getElementById('timeline');
       timeline.innerHTML = '';
       analysis.segments.forEach(segment => {
@@ -480,4 +466,3 @@
 </script>
 </body>
 </html>
-
